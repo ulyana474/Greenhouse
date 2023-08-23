@@ -1,49 +1,54 @@
 #include "Greenhouse.h"
 #include <Arduino.h>
 
-Greenhouse::Greenhouse(int pin)
-                      : watered(false)
-                      , lightIsOn(false)
-                      , fanIsOn(false) {
+Greenhouse::Greenhouse(int pin) {
+
     this->pin = pin;
     pinMode(pin, OUTPUT);
+
 }
 
 void Greenhouse::waterPlants() {
+
   if (watered)
   {
     return;
   }
-  
+  Serial.print("Started watering");
   digitalWrite(pin, HIGH);
-  delay(9000); 
+  delay(600000); // 10 mins
   digitalWrite(pin, LOW);
+  Serial.print("Finished watering");
   watered = true;
+
 }
 
 void Greenhouse::swichFansOn() {
-  if (fanIsOn) {
-    return;
-  }
-  Serial.print("Fan is on");
+
+  Serial.print("Fan is on ");
   digitalWrite(pin, HIGH);
   fanIsOn = true;
+
 }
 
 void Greenhouse::swichFansOff() {
-  if (!fanIsOn) {
-    return;
-  }
-  Serial.print("Fan is off");
+
+  Serial.print("Fan is off ");
   digitalWrite(pin, LOW);
   fanIsOn = false;
+
 }
 
 void Greenhouse::switchLightsOn() {
+
+  Serial.print("Light is on ");
   digitalWrite(pin, HIGH);
   lightIsOn = true;
+
 }
 
 void Greenhouse::switchLightsOff() {
-  digitalWrite(pin, HIGH);
+  Serial.print("Light is off ");
+  digitalWrite(pin, LOW);
+
 }
