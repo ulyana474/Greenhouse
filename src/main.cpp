@@ -11,25 +11,23 @@ WiFiUDP ntpUDP;
 NTPClient timeClient(ntpUDP, "pool.ntp.org", UTC_OFFSET_IN_SECONDS);
 
 bool TimeDifferenceIs24(const String& date1, const String& date2);
+void ConnectedToAP_Handler(WiFiEvent_t wifi_event, WiFiEventInfo_t wifi_info);
+void GotIP_Handler(WiFiEvent_t wifi_event, WiFiEventInfo_t wifi_info);
 
 const char* ssid = "InnoWarsaw";
 const char* password = "Wise299!";
 
-int hour;
-int mins;
-int sec;
 String lastTimeWatered = "";
 
-void ConnectedToAP_Handler(WiFiEvent_t wifi_event, WiFiEventInfo_t wifi_info);
-void GotIP_Handler(WiFiEvent_t wifi_event, WiFiEventInfo_t wifi_info);
-
-int waterPin = 32;
-int lightsPin = 12;
-int fansPin = 14;
+const int waterPin = 32;
+const int lightsPin = 12;
+const int fansPin = 14;
 
 Greenhouse water(waterPin);
 Greenhouse fans(fansPin);
 Greenhouse lights(lightsPin);
+
+Sensor sensor;
 
 void setup() {
 
@@ -49,9 +47,11 @@ void loop() {
 
   timeClient.update();
 
-  hour = timeClient.getHours();
-  mins = timeClient.getMinutes();
-  sec = timeClient.getSeconds();
+  int hour = timeClient.getHours();
+  int mins = timeClient.getMinutes();
+  int sec = timeClient.getSeconds();
+  float temp = sensor.outTemperature();
+  float humid = sensor.outHumidity();
   Serial.print(hour);
 
   if (hour == 00) {
@@ -81,6 +81,8 @@ void loop() {
   delay(10000);
   
 }
+
+//-------------------------------------------------------//
 
 bool TimeDifferenceIs24(const String &startTime, const String &endTime) {
 
