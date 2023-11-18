@@ -2,6 +2,7 @@
 #include <NTPClient.h>
 #include <WiFi.h>
 #include <WiFiUdp.h>
+#include <Sensor/Sensor.h>
 #include "Greenhouse/Greenhouse.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
@@ -14,7 +15,7 @@ bool TimeDifferenceIs24(const String& date1, const String& date2);
 void ConnectedToAP_Handler(WiFiEvent_t wifi_event, WiFiEventInfo_t wifi_info);
 void GotIP_Handler(WiFiEvent_t wifi_event, WiFiEventInfo_t wifi_info);
 
-const char* ssid = "InnoWarsaw";
+const char* ssid = "InnoBatumi";
 const char* password = "Wise299!";
 
 String lastTimeWatered = "";
@@ -32,39 +33,55 @@ Sensor sensor;
 void setup() {
 
   Serial.begin(115200);
+  sensor.begin();
   
   WiFi.mode(WIFI_STA);
   WiFi.onEvent(ConnectedToAP_Handler, ARDUINO_EVENT_WIFI_STA_CONNECTED);
   WiFi.onEvent(GotIP_Handler, ARDUINO_EVENT_WIFI_STA_GOT_IP);
   WiFi.begin(ssid, password);
+  
+  Serial.println("\nConnecting to WiFi Network ..");
+  while (WiFi.isConnected()){
+    Serial.print("...");
+    delay(500);
+  }
+
   timeClient.begin();
   timeClient.setTimeOffset(10800);
-  Serial.println("\nConnecting to WiFi Network ..");
 
 }
 
-void loop() {
+volatile int hour;
+volatile int mins;
+volatile int sec;
+volatile float temp;
+volatile float humid;
 
+void loop() {
+  delay(1000);
   timeClient.update();
 
-  int hour = timeClient.getHours();
-  int mins = timeClient.getMinutes();
-  int sec = timeClient.getSeconds();
-  float temp = sensor.outTemperature();
-  float humid = sensor.outHumidity();
+  hour = timeClient.getHours();
+  mins = timeClient.getMinutes();
+  sec = timeClient.getSeconds();
+
+  temp = sensor.outTemperature();
+  humid = sensor.outHumidity();
   Serial.print(hour);
 
-  if (hour == 00) {
+  if (hour == 21) { //TODO: MAKE 00
 
-    if (TimeDifferenceIs24(lastTimeWatered, String(hour) + ":" + String(mins) + ":" + String(sec))) {
+    bool checkTime = TimeDifferenceIs24(lastTimeWatered, String(hour) + ":" + String(mins) + ":" + String(sec));
+
+    if (checkTime == 0 or TimeDifferenceIs24(lastTimeWatered, String(hour) + ":" + String(mins) + ":" + String(sec))) {
         Serial.print("More than 24 hours has gone, time to water plants. ");
         water.waterPlants();
         lastTimeWatered = String(hour) + ":" + String(mins) + ":" + String(sec);
-        Serial.print('Last time watered' + " " + lastTimeWatered);
+        Serial.print("Last time watered " + lastTimeWatered);
     }
 
   }
-  
+
   if (hour > 23 && hour < 12) {
 
     lights.switchLightsOff();

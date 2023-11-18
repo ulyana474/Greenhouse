@@ -1,12 +1,12 @@
 #ifndef SENSOR_H
 #define SENSOR_H
-#include <Adafruit_Si7021.h>
+#include "Adafruit_HTU21DF.h"
 // #include <Wire.h>
 
 class Sensor
 {
 public:
-    Adafruit_Si7021 sensor;
+    Adafruit_HTU21DF sensor;
     double temp;
     double humid;
 
@@ -14,5 +14,9 @@ public:
 
     float outTemperature();
     float outHumidity();
+    
+    void begin(){
+        sensor.begin(&Wire);
+    }
 };
 #endif

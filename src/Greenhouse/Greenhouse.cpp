@@ -16,7 +16,7 @@ void Greenhouse::waterPlants() {
   }
   Serial.print("Started watering");
   digitalWrite(pin, HIGH);
-  delay(600000); // 10 mins
+  delay(10000); // 10 sec
   digitalWrite(pin, LOW);
   Serial.print("Finished watering");
   watered = true;
